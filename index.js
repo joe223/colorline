@@ -12,6 +12,7 @@ var game = {
         this.actions[name] = setInterval(function () {
             action();
             me.draw();
+            log(1)
         }, interval || 50);
     },
     // TODO：待看
@@ -120,20 +121,29 @@ game.score = {
         this.draw();
     },
 };
+
+/**
+ * 这是左上角的棋盒
+ * @type {{startX: number, startY: number, width: number, height: number, bubbles: Array, init: game.ready.init, genrate: game.ready.genrate, draw: game.ready.draw, isMoving: boolean, flyin: game.ready.flyin}}
+ */
 game.ready = {
     startX: 41.5,
     startY: 21.5,
     width: game.cellWidth * 3,
     height: game.cellWidth,
     bubbles: [],
+    /**
+     * 初始化
+     *      1、生成三枚棋子
+     *      2、三枚棋子飞入棋盘随机位置
+     */
     init: function () {
         this.genrate();
         var me = this;
-        log(this)
         me.flyin();
     },
+    // 随机生成3枚待使用的棋子
     genrate: function () {
-        // 每场开始时会初始化三枚棋子
         // 并向这三枚棋子附色
         for (var i = 0; i < 3; i++) {
             // game.mode 默认值：7
@@ -171,54 +181,64 @@ game.ready = {
         var me = this;
         var status = [0, 0, 0];
         var times = 1;
-        // game.play("flyin", function () {
-        //     if (status[0] && status[1] && status[2]) {
-        //         game.stop("flyin");
-        //         me.isMoving = false;
-        //         status = [0, 0, 0];
-        //         me.bubbles = [];
-        //         me.genrate();
-        //         return;
-        //     }
-        //     me.isMoving = true;
-        //     for (var i = 0; i < me.bubbles.length; i++) {
-        //         if (status[i]) {
-        //             continue;
-        //         }
-        //         var target = emptys[i];
-        //         var x2 = target.px + game.map.startX - me.startX;
-        //         var y2 = target.py + game.map.startY - me.startY;
-        //         var current = me.bubbles[i];
-        //         var step = Math.abs(x2 - current.px)/10 || Math.abs(y2 - current.y)/10;
-        //         if (current.px < x2) {
-        //             current.py = ((y2 - current.py) / (x2 - current.px)) * step + current.py;
-        //             current.px += step;
-        //             if (current.px > x2) {
-        //                 current.px = x2;
-        //             }
-        //         }
-        //         else if (current.px > x2) {
-        //             current.py = ((y2 - current.py) / (current.px - x2)) * step + current.py;
-        //             current.px -= step;
-        //             if (current.px < x2) {
-        //                 current.px = x2;
-        //             }
-        //         }
-        //         else {
-        //             current.py += step;
-        //         }
-        //         if (current.py > y2) {
-        //             current.py = y2;
-        //         }
-        //         if (parseInt(current.px+0.1) == x2 && parseInt(current.py+0.1) == y2) {
-        //             status[i] = 1;
-        //             current.x = target.x;
-        //             current.y = target.y;
-        //             game.map.addBubble(current);
-        //             game.map.clearLine(current.x, current.y, current.color, false);
-        //         }
-        //     }
-        // }, 10);
+        // 新棋子落入棋盘
+        game.play("flyin", function () {
+            if (status[0] && status[1] && status[2]) {
+                // 停止动画
+                game.stop("flyin");
+                me.isMoving = false;
+                status = [0, 0, 0];
+                me.bubbles = [];
+                me.genrate();
+                return;
+            }
+            me.isMoving = true;
+            for (var i = 0; i < me.bubbles.length; i++) {
+                if (status[i]) {
+                    continue;
+                }
+                var target = emptys[i];
+                // 棋子移动的的终点（相对于整个画布）
+                var x2 = target.px + game.map.startX - me.startX;
+                var y2 = target.py + game.map.startY - me.startY;
+                var current = me.bubbles[i];
+                // 每次移动剩下距离的 1/10
+                var step = Math.abs(x2 - current.px)/10 || Math.abs(y2 - current.y)/10;
+                // 如果棋子在目标点左侧
+                if (current.px < x2) {
+                    // y 轴上的移动也是如此
+                    current.py = ((y2 - current.py) / (x2 - current.px)) * step + current.py;
+                    current.px += step;
+                    // 这是坐标纠正措施
+                    if (current.px > x2) {
+                        current.px = x2;
+                    }
+                }
+                // 如果棋子在目标点右侧
+                else if (current.px > x2) {
+                    current.py = ((y2 - current.py) / (current.px - x2)) * step + current.py;
+                    current.px -= step;
+                    if (current.px < x2) {
+                        current.px = x2;
+                    }
+                }
+                // 如果在同一条垂直线上，则只需在 y 轴上移动
+                else {
+                    current.py += step;
+                }
+                if (current.py > y2) {
+                    current.py = y2;
+                }
+                // 如果最后距离终点只有 0.1px ，则算作已经移动到终点
+                if (parseInt(current.px+0.1) == x2 && parseInt(current.py+0.1) == y2) {
+                    status[i] = 1;
+                    current.x = target.x;
+                    current.y = target.y;
+                    game.map.addBubble(current);
+                    game.map.clearLine(current.x, current.y, current.color, false);
+                }
+            }
+        }, 10);
 
     }
 };
@@ -239,6 +259,14 @@ game.map = {
         }
     },
     // TODO：待看
+
+    /**
+     * 清空穿过这个点的所有五子连线
+     * @param x1    bubble.x
+     * @param y1    bubble.y
+     * @param color bubble.color
+     * @param isClick
+     */
     clearLine: function (x1, y1, color, isClick) {
         if (this.isEmpty(x1, y1)) {
             if (isClick) game.ready.flyin();
@@ -252,20 +280,27 @@ game.map = {
             log(current);
         }
         var arr1, arr2, arr3, arr4;
+        // ——
         arr1 = this.bubbles[y1];
+        // |
         arr2 = [];
         for (var y = 0; y < game.cellCount; y++)
             arr2.push(this.getBubble(x1, y));
+        // \
         arr3 = [current];
+        // /
         arr4 = [current];
         for (var i = 1; i < game.cellCount ; i++) {
+            // 左上角连线上的点
             if (x1 - i >= 0 && y1 - i >= 0)
                 arr3.unshift(this.getBubble(x1 - i, y1 - i));
+            // 右下角连线上的点
             if (x1 + i < game.cellCount && y1 + i < game.cellCount)
                 arr3.push(this.getBubble(x1 + i, y1 + i));
-
+            // 左下角连线上的点
             if (x1 - i >= 0 && y1 + i < game.cellCount)
                 arr4.push(this.getBubble(x1 - i, y1 + i));
+            // 右下角连线上的点
             if (x1 + i < game.cellCount && y1 - i >= 0)
                 arr4.unshift(this.getBubble(x1 + i, y1 - i));
         }
@@ -274,6 +309,7 @@ game.map = {
         var line3 = getLine(arr3);
         var line4 = getLine(arr4);
         var line = line1.concat(line2).concat(line3).concat(line4);
+        // TODO：如果是点击则...干啥来着？
         if (line.length < 5) {
             if (isClick) game.ready.flyin();
             return;
@@ -281,16 +317,20 @@ game.map = {
         else {
             var me = this;
             var i = 0;
+            // TODO
             game.play("clearline", function () {
                 if (i == line.length) {
+
                     game.score.addScore(line.length);
                     game.stop("clearline");
+                    // TODO
                     me.isMoving = false;
-                    //game.ready.flyin();
+                    // game.ready.flyin();
                     return;
                 }
                 me.isMoving = true;
                 var p = line[i];
+                // 这里仅仅是更新下 bubble 的配色参数，其实此时并不会有 UI 上的变化
                 me.setBubble(p.x, p.y, null);
                 i++;
             }, 100);
@@ -304,12 +344,16 @@ game.map = {
                     line.push({ "x": b.x, "y": b.y });
                 }
                 else {
+                    // 小于 5 个连珠则返回
                     if (line.length < 5)
                         line = [];
+                    // 尽可能匹配多的连珠
                     else
                         return line;
                 }
             }
+            // 如果 bubbles 数组中的连珠都同色，但是小于 5，则前面不会 return
+            // 所以在这里判断下
             if (line.length < 5)
                 return [];
             return line;
@@ -494,9 +538,11 @@ var Cell = function (x, y) {
 }
 window.count = 0
 var Bubble = function (x, y, color) {
-    this.x = x;
+    this.x = x;     // 几行几列
     this.y = y;
-    this.px = game.cellWidth * (this.x + 1) - game.cellWidth / 2;
+    // 这个地址是相对棋盘左上角而言
+    // 所以如果要获取相对于整个画布的位置，则需要加上 map.startX map.startY 的坐标
+    this.px = game.cellWidth * (this.x + 1) - game.cellWidth / 2;   // 像素中心点
     this.py = game.cellWidth * (this.y + 1) - game.cellWidth / 2;
     this.color = color;
     this.light = 10;

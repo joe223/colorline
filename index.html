@@ -10,7 +10,10 @@
     <script src="./index.js"></script>
     <script type="text/javascript">
         game.start();
+        var g = game
+        setTimeout(() => {
+            g.map.setBubble(1,1, 'red')
+        }, 1000)
     </script>
-	<div style="text-align:center;">
 </body>
 </html>
