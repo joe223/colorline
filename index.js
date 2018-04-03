@@ -182,6 +182,7 @@ game.ready = {
         var status = [0, 0, 0];
         var times = 1;
         // 新棋子落入棋盘
+        // game 会在 action 后执行一次 draw 方法
         game.play("flyin", function () {
             if (status[0] && status[1] && status[2]) {
                 // 停止动画
@@ -234,7 +235,9 @@ game.ready = {
                     status[i] = 1;
                     current.x = target.x;
                     current.y = target.y;
+                    // 在棋盘上添加一枚棋子
                     game.map.addBubble(current);
+                    // 移动到终点后会判断是否形成连珠
                     game.map.clearLine(current.x, current.y, current.color, false);
                 }
             }
