@@ -12,7 +12,6 @@ var game = {
         this.actions[name] = setInterval(function () {
             action();
             me.draw();
-            log(1)
         }, interval || 50);
     },
     // TODO：待看
@@ -21,10 +20,13 @@ var game = {
         this.draw();
     },
     colors: ["red", "#039518", "#ff00dc", "#ff6a00", "gray", "#0094ff", "#d2ce00"],
+
+    // 这里是程序的起点
+    // everything from here
     start: function () {
         this.map.init();
         this.ready.init();
-        this.draw();
+        this.draw();    // 这个其实不在此处执行也行的，因为 ready.flyin 动画的每一帧都会 调用 this.draw 一次
         this.canvas.onclick = this.onclick;
     },
     over: function () {
@@ -34,7 +36,9 @@ var game = {
         };
     },
     draw: function () {
+        // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/clearRect
         this.ctx.clearRect(0, 0, 400, 600);
+        // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/save
         this.ctx.save();
         this.map.draw();
         this.ready.draw();
@@ -45,34 +49,41 @@ var game = {
     isMoving: function () {
         return this.ready.isMoving || this.map.isMoving;
     },
+    // 棋盘点击处理
     onclick: function (e) {
         if (game.isMoving()) {
             return;
         }
+        // 点击坐标
         var px = (e.offsetX || (e.clientX - game.canvas.offsetLeft)) - game.map.startX;
         var py = (e.offsetY || (e.clientY - game.canvas.offsetTop)) - game.map.startY;
         if (px < 0 || py < 0 || px > game.map.width || py > game.map.height) {
             return;
         }
+        // 获取被点击的格子坐标
         var x = parseInt(px / game.cellWidth);
         var y = parseInt(py / game.cellWidth);
         var clicked = game.clicked;
+        // 获取被点击的棋子
         var bubble = game.map.getBubble(x, y);
         if (bubble.color) {
             if (clicked) {
-                //同一个泡不做反映
+                //同一个棋子不做反映
                 if (clicked.x == x && clicked.y == y) {
                     return;
                 }
                 clicked.stop();
             }
+            // 重新选择一颗棋子
             clicked = game.clicked = bubble;
             bubble.play();
         }
         else {
             if (clicked) {
                 clicked.stop();
-                //移动clicked
+                //移动被点击的棋子到目的地
+                // bubble 是棋盘上的无色棋子
+                // clicked 是有色棋子
                 game.map.move(clicked, bubble);
             }
         }
@@ -82,12 +93,17 @@ var game = {
         return parseInt(Math.random() * 1000000 % (max));
     },
 };
+/**
+ * 计分板
+ * @type {{basic: number, operate: number, star1: number, star2: number, boom: number, draw: game.score.draw, addScore: game.score.addScore}}
+ */
 game.score = {
     basic: 0,
     operate: 0,
     star1: 0,
     star2: 0,
     boom: 0,
+
     draw: function () {
         var startX = game.cellWidth * 10 + game.map.startX;
         var startY = game.map.startY;
@@ -99,10 +115,12 @@ game.score = {
         //ctx.strokeRect(0, 0, 150, 200);
         ctx.font = "24px 微软雅黑";
         ctx.fillStyle = "#fefefe";
+        // 这里有算分规则
         ctx.fillText("得分:" + (this.basic * 5 + this.star1 * 8 + this.star2 * 10 + this.boom * 20), 0, 30);
         ctx.stroke();
         ctx.restore();
     },
+    // 计分
     addScore: function (length) {
         switch (length) {
             case 5:
@@ -142,7 +160,9 @@ game.ready = {
         var me = this;
         me.flyin();
     },
-    // 随机生成3枚待使用的棋子
+    /**
+     * 随机生成3枚待使用的棋子
+     */
     genrate: function () {
         // 并向这三枚棋子附色
         for (var i = 0; i < 3; i++) {
@@ -153,15 +173,19 @@ game.ready = {
         }
         //log(this.bubbles);
     },
+    /**
+     * 绘制棋盒
+     */
     draw: function () {
         var ctx = game.ctx;
         ctx.save();
+        // 移动棋盒到指定位置
         ctx.translate(this.startX, this.startY);
         ctx.beginPath();
         ctx.strokeStyle = "#555";
         ctx.strokeRect(0, 0, this.width, this.height);
         ctx.stroke();
-        //绘制准备的泡
+        //绘制准备的棋子
         this.bubbles.forEach(function (bubble) {
             bubble.draw();
         });
@@ -169,7 +193,10 @@ game.ready = {
         ctx.restore();
     },
     isMoving: false,
-    // TODO
+
+    /**
+     * 棋盒中取三枚棋子到棋盘
+     */
     flyin: function () {
         var emptys = game.map.getEmptyBubbles();
         // 如果剩下的空间不够放3枚棋子，则游戏结束
@@ -184,6 +211,8 @@ game.ready = {
         // 新棋子落入棋盘
         // game 会在 action 后执行一次 draw 方法
         game.play("flyin", function () {
+            // 如果三枚棋子都安稳地落入棋盘
+            // 则棋盒中添加三枚棋子
             if (status[0] && status[1] && status[2]) {
                 // 停止动画
                 game.stop("flyin");
@@ -193,6 +222,7 @@ game.ready = {
                 me.genrate();
                 return;
             }
+            // 这是一个状态值，当前是否有棋子在移动
             me.isMoving = true;
             for (var i = 0; i < me.bubbles.length; i++) {
                 if (status[i]) {
@@ -261,7 +291,6 @@ game.map = {
             this.bubbles.push(row);
         }
     },
-    // TODO：待看
 
     /**
      * 清空穿过这个点的所有五子连线
@@ -312,7 +341,8 @@ game.map = {
         var line3 = getLine(arr3);
         var line4 = getLine(arr4);
         var line = line1.concat(line2).concat(line3).concat(line4);
-        // TODO：如果是点击则...干啥来着？
+
+        // 动画执行时不干其他的事
         if (line.length < 5) {
             if (isClick) game.ready.flyin();
             return;
@@ -320,13 +350,14 @@ game.map = {
         else {
             var me = this;
             var i = 0;
-            // TODO
+
+            // 我们要一颗一颗地删除连在一起的棋子
             game.play("clearline", function () {
                 if (i == line.length) {
 
                     game.score.addScore(line.length);
                     game.stop("clearline");
-                    // TODO
+
                     me.isMoving = false;
                     // game.ready.flyin();
                     return;
@@ -336,7 +367,7 @@ game.map = {
                 // 这里仅仅是更新下 bubble 的配色参数，其实此时并不会有 UI 上的变化
                 me.setBubble(p.x, p.y, null);
                 i++;
-            }, 100);
+            }, 1000);
         }
         function getLine(bubbles) {
 
@@ -362,32 +393,43 @@ game.map = {
             return line;
         }
     },
+    /**
+     * 绘制棋盘以及棋盘上的（看不见）棋子
+     */
     draw: function () {
         var ctx = game.ctx;
+        // 保留之前的绘制
         ctx.save();
+        // 棋盘的位置
         ctx.translate(this.startX, this.startY);
+        // 开始画格子
         ctx.beginPath();
         for (var i = 0; i <= game.cellCount; i++) {
+            // 从上往下 ---- 横着画
             var p1 = i * game.cellWidth;;
             ctx.moveTo(p1, 0);
             ctx.lineTo(p1, this.height);
-
+            // 从左往右 | 竖着画
             var p2 = i * game.cellWidth;
             ctx.moveTo(0, p2);
             ctx.lineTo(this.width, p2);
         }
+        // 设置填充色
         ctx.strokeStyle = "#555";
+        // 画完格子啦
         ctx.stroke();
-        //绘制子元素（所有在棋盘上的泡）
+        //绘制子元素（所有在棋盘上的棋子）
         this.bubbles.forEach(function (row) {
             row.forEach(function (bubble) {
                 bubble.draw();
             });
         });
+        // 恢复之前缓存的数据
         ctx.restore();
     },
     isMoving: false,
-    // TODO：待看
+
+    // 将一枚棋子移动到指定地方
     move: function (bubble, target) {
         var path = this.search(bubble.x, bubble.y, target.x, target.y);
         if (!path) {
@@ -395,7 +437,7 @@ game.map = {
             //alert("过不去");
             return;
         }
-        //map开始播放当前泡的移动效果
+        //map开始播放当前棋子的移动效果
         //两种实现方式，1、map按路径染色，最后达到目的地 2、map生成一个临时的bubble负责展示，到目的地后移除
         //log(path);
         var me = this;
@@ -417,9 +459,11 @@ game.map = {
             var currentCell = path[i];
             me.setBubble(currentCell.x, currentCell.y, color);
             i--;
-        }, 50);
+        }, 1150);
     },
-    // TODO：待看
+
+    // 光说不行，我们得找一条路吧？
+    // 这里查找从 1 到 2 的路径
     search: function (x1, y1, x2, y2) {
         var history = [];
         var goalCell = null;
@@ -436,9 +480,13 @@ game.map = {
             return path;
         }
         return null;
+
+        // TODO
         function getCell(x, y, parent) {
+            // 这里的bubbles存的是列和行数
             if (x >= me.bubbles.length || y >= me.bubbles.length)
                 return;
+
             if (x != x1 && y != y2 && !me.isEmpty(x, y))
                 return;
 
@@ -449,6 +497,7 @@ game.map = {
             var cell = { "x": x, "y": y, child: [], "parent": parent };
             history.push(cell);
 
+            // 如果已经到达终点，那咱就不说啥了
             if (cell.x == x2 && cell.y == y2) {
                 goalCell = cell;
                 return cell;
@@ -456,6 +505,7 @@ game.map = {
             var child = [];
             var left, top, right, buttom;
             //最短路径的粗略判断就是首选目标位置的大致方向
+            // 当前cell的四个方向有哪些可选路径
             if (x - 1 >= 0 && me.isEmpty(x - 1, y))
                 child.push({ "x": x - 1, "y": y });
             if (x + 1 < me.bubbles.length && me.isEmpty(x + 1, y))
@@ -515,16 +565,16 @@ game.map = {
         //log(useds);
         return result;
     },
-    // TODO：待看
+
     addBubble: function (bubble) {
         var thisBubble = this.getBubble(bubble.x, bubble.y);
         thisBubble.color = bubble.color;
     },
-    // TODO：待看
+
     setBubble: function (x, y, color) {
         this.getBubble(x, y).color = color;
     },
-    // TODO：待看
+
     getBubble: function (x, y) {
         if (x < 0 || y < 0 || x > game.cellCount || y > game.cellCount) return null;
         return this.bubbles[y][x];
@@ -554,19 +604,24 @@ Bubble.prototype.draw = function () {
     if (!this.color) {
         return;
     }
+    // console.log('draw')
     var ctx = game.ctx;
     ctx.beginPath();
     //log("x:" + px + "y:" + py);
+    // 创建环形渐变
     var gradient = ctx.createRadialGradient(this.px - 5, this.py - 5, 0, this.px, this.py, this.light);
     gradient.addColorStop(0, "white");
     gradient.addColorStop(1, this.color);
+    // 画一个圆形棋子
     ctx.arc(this.px, this.py, 11, 0, Math.PI * 2);
     ctx.strokeStyle = this.color;
     ctx.fillStyle = gradient;
     ctx.fill();
     ctx.stroke();
 };
-// TODO
+/**
+ * 棋子开始闪烁
+ */
 Bubble.prototype.play = function () {
     var me = this;
     var isUp = true;
@@ -586,11 +641,16 @@ Bubble.prototype.play = function () {
         }
     }, 50);
 };
-// TODO
+/**
+ * 棋子结束闪烁
+ */
 Bubble.prototype.stop = function () {
     //this.light = 10;
     var me = this;
     game.stop("light_" + this.x + "_" + this.y);
+
+    // 停止闪烁后如果棋子还是高亮状态
+    // 则取消高亮
     game.play("restore_" + this.x + "_" + this.y, function () {
         if (me.light > 10) {
             me.light--;
