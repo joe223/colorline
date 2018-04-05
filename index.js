@@ -1,7 +1,7 @@
 var game = {
     canvas: document.getElementById("canvas"),
     ctx: document.getElementById("canvas").getContext("2d"),
-    cellCount: 9,  //九宫格
+    cellCount: 10,  //九宫格
     cellWidth: 30,  //方格大小
     lineCount: 5,
     mode: 7,
@@ -54,15 +54,16 @@ var game = {
         if (game.isMoving()) {
             return;
         }
+        var ratio = game.canvas.offsetWidth / 600
         // 点击坐标
-        var px = (e.offsetX || (e.clientX - game.canvas.offsetLeft)) - game.map.startX;
-        var py = (e.offsetY || (e.clientY - game.canvas.offsetTop)) - game.map.startY;
-        if (px < 0 || py < 0 || px > game.map.width || py > game.map.height) {
+        var px = (e.offsetX || (e.clientX - game.canvas.offsetLeft)) - game.map.startX * ratio;
+        var py = (e.offsetY || (e.clientY - game.canvas.offsetTop)) - game.map.startY * ratio;
+        if (px < 0 || py < 0 || px > game.map.width * ratio || py > game.map.height * ratio) {
             return;
         }
         // 获取被点击的格子坐标
-        var x = parseInt(px / game.cellWidth);
-        var y = parseInt(py / game.cellWidth);
+        var x = parseInt(px / (game.cellWidth * ratio));
+        var y = parseInt(py / (game.cellWidth * ratio));
         var clicked = game.clicked;
         // 获取被点击的棋子
         var bubble = game.map.getBubble(x, y);
@@ -432,11 +433,13 @@ game.map = {
     // 将一枚棋子移动到指定地方
     move: function (bubble, target) {
         var path = this.search(bubble.x, bubble.y, target.x, target.y);
+        // 注意：这条路径是反向操作！！
         if (!path) {
             //显示不能移动s
             //alert("过不去");
             return;
         }
+
         //map开始播放当前棋子的移动效果
         //两种实现方式，1、map按路径染色，最后达到目的地 2、map生成一个临时的bubble负责展示，到目的地后移除
         //log(path);
@@ -459,16 +462,18 @@ game.map = {
             var currentCell = path[i];
             me.setBubble(currentCell.x, currentCell.y, color);
             i--;
-        }, 1150);
+        }, 110);
     },
 
     // 光说不行，我们得找一条路吧？
     // 这里查找从 1 到 2 的路径
+    // 这并不是最短路径算法
     search: function (x1, y1, x2, y2) {
         var history = [];
         var goalCell = null;
         var me = this;
         getCell(x1, y1, null);
+        // 如果从起点出发，能到达目标点
         if (goalCell) {
             var path = [];
 
@@ -481,8 +486,10 @@ game.map = {
         }
         return null;
 
-        // TODO
+        // 获取所有相邻的格子的权重
+        // 这块怎么解释呢？一次只能跨一个格子，那么找到所有从 A 点出发后能到达的点
         function getCell(x, y, parent) {
+            if (goalCell) return // NOTICE: 这是新增的优化方式
             // 这里的bubbles存的是列和行数
             if (x >= me.bubbles.length || y >= me.bubbles.length)
                 return;
@@ -490,11 +497,16 @@ game.map = {
             if (x != x1 && y != y2 && !me.isEmpty(x, y))
                 return;
 
+            // 如果是一个跑过的格子，则忽略
             for (var i = 0; i < history.length; i++) {
                 if (history[i].x == x && history[i].y == y)
                     return;
             }
             var cell = { "x": x, "y": y, child: [], "parent": parent };
+            // 终点也会被放到 history 中
+            // 也就是，如果已经找到路线，那么不会有第二条路线
+            // 因为终点已经被这条路线占用了
+            // 因此有个可以优化的点就是：如果 goalcell 已经存在，则不再继续找路线
             history.push(cell);
 
             // 如果已经到达终点，那咱就不说啥了
@@ -518,17 +530,23 @@ game.map = {
             for(var i=0;i<child.length;i++){
                 var c = child[i];
                 if(c){
+                    // 权值的计算方式 x 轴和 y 轴的距离之和
                     distance.push({"i":i,"d":Math.abs(x2 - c.x) + Math.abs(y2 - c.y)});
                 }else{
+                    // 这块不会执行的
+                    alert('这块不会执行的')
                     distance.push({"i":i,"d":-1});
                 }
             };
+            // 这里根据权值排下序
             distance.sort(function (a, b) { return a.d - b.d });
+
             for (var i = 0; i < child.length; i++) {
                 var d = distance[i];
                 var c = child[d.i];
                 if (c) cell.child.push(getCell(c.x, c.y, cell));
             }
+
             return cell;
         }
     },
