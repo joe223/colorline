@@ -21,7 +21,7 @@ var game = {
         clearInterval(this.actions[name]);
         this.draw();
     },
-    colors: ['#009688', '#F44336', '#2196F3', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#00BCD4',  '#FF9800', '#795548', '#4CAF50', '#CDDC39', '#9E9E9E'],
+    colors: ['#009688', '#F44336', '#2196F3', '#9C27B0', '#673AB7', '#3F51B5', '#00BCD4',  '#FF9800', '#795548', '#CDDC39', '#9E9E9E'],
 
     // 这里是程序的起点
     // everything from here
@@ -38,6 +38,7 @@ var game = {
         this.ctx.clearRect(0, 0, 99999, 99999);
         this.map.init();
         this.ready.init();
+        this.score.init()
         // this.draw();    // 这个其实不在此处执行也行的，因为 ready.flyin 动画的每一帧都会 调用 this.draw 一次
         this.canvas.onclick = this.onclick;
     },
@@ -115,12 +116,15 @@ var game = {
  * @type {{basic: number, operate: number, star1: number, star2: number, boom: number, draw: game.score.draw, addScore: game.score.addScore}}
  */
 game.score = {
-    basic: 0,
-    operate: 0,
-    star1: 0,
-    star2: 0,
-    boom: 0,
-    score: 0,
+
+    init () {
+        this.basic = 0
+        this.operate = 0
+        this.star1 = 0
+        this.star2 = 0
+        this.boom = 0
+        this.score = 0
+    },
 
     draw: function () {
         var startX = game.cellWidth * 10 + game.map.startX + 20;
