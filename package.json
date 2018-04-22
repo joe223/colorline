@@ -1,8 +1,13 @@
 {
+  "scripts": {
+    "dev": "parcel index.html"
+  },
   "dependencies": {
+    "store": "^2.0.12",
     "vue": "^2.5.16"
   },
   "devDependencies": {
-    "jquery": "^3.3.1"
+    "jquery": "^3.3.1",
+    "node-sass": "^4.8.3"
   }
 }

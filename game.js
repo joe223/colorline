@@ -21,29 +21,30 @@ var game = {
         clearInterval(this.actions[name]);
         this.draw();
     },
-    colors: ["red", "#039518", "#ff00dc", "#ff6a00", "gray", "#0094ff", "#d2ce00"],
+    colors: ['#009688', '#F44336', '#2196F3', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#00BCD4',  '#FF9800', '#795548', '#4CAF50', '#CDDC39', '#9E9E9E'],
 
-    init: function (config = {}) {
+    // 这里是程序的起点
+    // everything from here
+    start: function (config = {}) {
         const body = $('body')
-        this.cellCount = config.cellCount || 10
+        this.cellCount = (!isNaN(config.cellCount) && config.cellCount >=5) ? config.cellCount : 10
         this.mode = config.mode || 7
         this.height = body.height()
         this.width = body.width()
         const max = body.width() > body.height() ? body.height() : body.width()
         this.cellWidth = parseInt((max - 250) / this.cellCount)
         this.cellWidth = this.cellWidth < 10 ? 10 : this.cellWidth
-    },
-    // 这里是程序的起点
-    // everything from here
-    start: function () {
 
+        this.ctx.clearRect(0, 0, 99999, 99999);
         this.map.init();
         this.ready.init();
         // this.draw();    // 这个其实不在此处执行也行的，因为 ready.flyin 动画的每一帧都会 调用 this.draw 一次
         this.canvas.onclick = this.onclick;
     },
     over: function () {
-        alert("GAME OVER");
+        if (window.app) {
+            window.app.$emit('gameEnd', this.score.score)
+        }
         this.onclick = function () {
             return false;
         };
@@ -60,6 +61,7 @@ var game = {
     },
     clicked: null,
     isMoving: function () {
+        log(this.ready.isMoving, this.map.isMoving)
         return this.ready.isMoving || this.map.isMoving;
     },
     // 棋盘点击处理
@@ -107,7 +109,7 @@ var game = {
         return parseInt(Math.random() * 1000000 % (max));
     },
 };
-game.init()
+
 /**
  * 计分板
  * @type {{basic: number, operate: number, star1: number, star2: number, boom: number, draw: game.score.draw, addScore: game.score.addScore}}
@@ -118,6 +120,7 @@ game.score = {
     star1: 0,
     star2: 0,
     boom: 0,
+    score: 0,
 
     draw: function () {
         var startX = game.cellWidth * 10 + game.map.startX + 20;
@@ -130,9 +133,14 @@ game.score = {
         ctx.strokeStyle = "#456";
         //ctx.strokeRect(0, 0, 150, 200);
         ctx.font = "24px 微软雅黑";
-        ctx.fillStyle = "#fefefe";
+        ctx.fillStyle = "transparent";
         // 这里有算分规则
-        ctx.fillText("得分:" + (this.basic * 5 + this.star1 * 8 + this.star2 * 10 + this.boom * 20), 0, 30);
+        this.score = this.basic * 5 + this.star1 * 8 + this.star2 * 10 + this.boom * 20
+        if (window.app) {
+            window.app.$emit('updateScore', this.score)
+        }
+
+        ctx.fillText("得分: " + this.score, 0, 30);
         ctx.stroke();
         ctx.restore();
     },
@@ -161,17 +169,18 @@ game.score = {
  * @type {{startX: number, startY: number, width: number, height: number, bubbles: Array, init: game.ready.init, genrate: game.ready.genrate, draw: game.ready.draw, isMoving: boolean, flyin: game.ready.flyin}}
  */
 game.ready = {
-    startX: 41.5,
-    startY: 21.5,
-    width: game.cellWidth * 3,
-    height: game.cellWidth,
-    bubbles: [],
     /**
      * 初始化
      *      1、生成三枚棋子
      *      2、三枚棋子飞入棋盘随机位置
      */
     init: function () {
+        this.isMoving = false
+        this.startX = 41.5
+        this.startY = 21.5
+        this.bubbles = []
+        this.width = game.cellWidth * 3;
+        this.height = game.cellWidth;
         this.genrate();
         var me = this;
         me.flyin();
@@ -208,7 +217,6 @@ game.ready = {
 
         ctx.restore();
     },
-    isMoving: false,
 
     /**
      * 棋盒中取三枚棋子到棋盘
@@ -238,6 +246,7 @@ game.ready = {
                 me.genrate();
                 return;
             }
+            // log(status)
             // 这是一个状态值，当前是否有棋子在移动
             me.isMoving = true;
             for (var i = 0; i < me.bubbles.length; i++) {
@@ -276,8 +285,12 @@ game.ready = {
                 if (current.py > y2) {
                     current.py = y2;
                 }
+                let limit = 0.05 * game.cellWidth
+                limit = limit < 1 ? 1 : limit
+
+                if (i === 0) log(i, '::::', current, x2, y2, limit)
                 // 如果最后距离终点只有 0.1px ，则算作已经移动到终点
-                if (parseInt(current.px+0.1) == x2 && parseInt(current.py+0.1) == y2) {
+                if (Math.abs(current.px - x2) < limit && Math.abs(current.py - y2) < limit) {
                     status[i] = 1;
                     current.x = target.x;
                     current.y = target.y;
@@ -287,20 +300,20 @@ game.ready = {
                     game.map.clearLine(current.x, current.y, current.color, false);
                 }
             }
-        }, 10);
+        }, 16);
 
     }
 };
 // 初始棋盘
 game.map = {
-    startX: 40,  //棋盘X坐标
-    startY: game.cellWidth * 2,  //棋盘Y坐标
-    width: game.cellCount * game.cellWidth,
-    height: game.cellCount * game.cellWidth,
-    bubbles: [],
     init: function () {
+        this.startX = 40
+        this.bubbles = []
         this.width = game.cellCount * game.cellWidth
         this.height = game.cellCount * game.cellWidth
+        this.startY = game.cellWidth * 2  //棋盘Y坐标
+
+
         for (var i = 0; i < game.cellCount; i++) {
             var row = [];
             for (var j = 0; j < game.cellCount; j++) {
@@ -385,7 +398,7 @@ game.map = {
                 // 这里仅仅是更新下 bubble 的配色参数，其实此时并不会有 UI 上的变化
                 me.setBubble(p.x, p.y, null);
                 i++;
-            }, 1000);
+            }, 200);
         }
         function getLine(bubbles) {
 
@@ -479,7 +492,7 @@ game.map = {
             var currentCell = path[i];
             me.setBubble(currentCell.x, currentCell.y, color);
             i--;
-        }, 110);
+        }, 30);
     },
 
     // 光说不行，我们得找一条路吧？
@@ -630,11 +643,11 @@ var Bubble = function (x, y, color) {
     this.y = y;
     // 这个地址是相对棋盘左上角而言
     // 所以如果要获取相对于整个画布的位置，则需要加上 map.startX map.startY 的坐标
-    this.px = game.cellWidth * (this.x + 1) - game.cellWidth / 2;   // 像素中心点
-    this.py = game.cellWidth * (this.y + 1) - game.cellWidth / 2;
+    this.px = game.cellWidth * this.x + game.cellWidth / 2;   // 像素中心点
+    this.py = game.cellWidth * this.y + game.cellWidth / 2;
     this.color = color;
     this.width = parseInt(game.cellWidth / 2)
-    this.light = this.width;
+    this.light = this.width / 1.4;
 };
 Bubble.prototype.draw = function () {
     if (!this.color) {
@@ -647,7 +660,7 @@ Bubble.prototype.draw = function () {
     // 创建环形渐变
 
     var gradient = ctx.createRadialGradient(this.px - 0, this.py - 0, 0, this.px, this.py, this.light);
-    gradient.addColorStop(0, "white");
+    gradient.addColorStop(0, 'rgba(255,255,255, 1)');
     gradient.addColorStop(1, this.color);
     // 画一个圆形棋子
     ctx.arc(this.px, this.py, this.width / 1.2, 0, Math.PI * 2);
