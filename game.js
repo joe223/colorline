@@ -1,6 +1,7 @@
 import $ from 'jquery'
 
 var game = {
+    isEnd: false,
     canvas: document.getElementById("canvas"),
     ctx: document.getElementById("canvas").getContext("2d"),
     cellCount: 10,  //九宫格
@@ -26,6 +27,7 @@ var game = {
     // 这里是程序的起点
     // everything from here
     start: function (config = {}) {
+        this.isEnd = false
         const body = $('body')
         this.cellCount = (!isNaN(config.cellCount) && config.cellCount >=5) ? config.cellCount : 10
         this.mode = config.mode || 7
@@ -43,12 +45,10 @@ var game = {
         this.canvas.onclick = this.onclick;
     },
     over: function () {
+        this.isEnd = true
         if (window.app) {
             window.app.$emit('gameEnd', this.score.score)
         }
-        this.onclick = function () {
-            return false;
-        };
     },
     draw: function () {
         // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/clearRect
@@ -67,6 +67,7 @@ var game = {
     },
     // 棋盘点击处理
     onclick: function (e) {
+        if (this.isEnd) return
         if (game.isMoving()) {
             return;
         }

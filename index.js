@@ -46,7 +46,7 @@ const app = window.app = new Vue({
         initGame () {
             game.start({
                 mode: parseInt(this.difficulty),
-                cellCount: 9
+                cellCount: 6
             })
             window.game = game
         }

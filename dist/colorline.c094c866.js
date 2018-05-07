@@ -77,7 +77,7 @@ parcelRequire = (function (modules, cache, entry) {
 
   // Override the current require with this new one
   return newRequire;
-})({19:[function(require,module,exports) {
+})({21:[function(require,module,exports) {
 
 // shim for using process in browser
 var process = module.exports = {};
@@ -264,7 +264,7 @@ process.chdir = function (dir) {
 process.umask = function () {
     return 0;
 };
-},{}],9:[function(require,module,exports) {
+},{}],10:[function(require,module,exports) {
 var global = (1,eval)("this");
 var process = require("process");
 /*!
@@ -10632,7 +10632,7 @@ if ( !noGlobal ) {
 return jQuery;
 } );
 
-},{"process":19}],7:[function(require,module,exports) {
+},{"process":21}],5:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10646,6 +10646,7 @@ var _jquery2 = _interopRequireDefault(_jquery);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var game = {
+    isEnd: false,
     canvas: document.getElementById("canvas"),
     ctx: document.getElementById("canvas").getContext("2d"),
     cellCount: 10, //九宫格
@@ -10673,6 +10674,7 @@ var game = {
     start: function start() {
         var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
+        this.isEnd = false;
         var body = (0, _jquery2.default)('body');
         this.cellCount = !isNaN(config.cellCount) && config.cellCount >= 5 ? config.cellCount : 10;
         this.mode = config.mode || 7;
@@ -10690,12 +10692,10 @@ var game = {
         this.canvas.onclick = this.onclick;
     },
     over: function over() {
+        this.isEnd = true;
         if (window.app) {
             window.app.$emit('gameEnd', this.score.score);
         }
-        this.onclick = function () {
-            return false;
-        };
     },
     draw: function draw() {
         // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/clearRect
@@ -10714,6 +10714,7 @@ var game = {
     },
     // 棋盘点击处理
     onclick: function onclick(e) {
+        if (this.isEnd) return;
         if (game.isMoving()) {
             return;
         }
@@ -11351,7 +11352,7 @@ function log() {
 }
 
 exports.default = game;
-},{"jquery":9}],37:[function(require,module,exports) {
+},{"jquery":10}],39:[function(require,module,exports) {
 var global = (1,eval)("this");
 'use strict';
 
@@ -21251,7 +21252,7 @@ function getOuterHTML(el) {
 Vue.compile = compileToFunctions;
 
 exports.default = Vue;
-},{}],21:[function(require,module,exports) {
+},{}],29:[function(require,module,exports) {
 var global = (1,eval)("this");
 var assign = make_assign()
 var create = make_create()
@@ -21372,7 +21373,7 @@ function isObject(val) {
 	return val && {}.toString.call(val) === '[object Object]'
 }
 
-},{}],14:[function(require,module,exports) {
+},{}],13:[function(require,module,exports) {
 var util = require('./util')
 var slice = util.slice
 var pluck = util.pluck
@@ -21611,7 +21612,7 @@ function createStore(storages, plugins, namespace) {
 	return store
 }
 
-},{"./util":21}],22:[function(require,module,exports) {
+},{"./util":29}],23:[function(require,module,exports) {
 var util = require('../src/util')
 var Global = util.Global
 
@@ -21651,7 +21652,7 @@ function clearAll() {
 	return localStorage().clear()
 }
 
-},{"../src/util":21}],23:[function(require,module,exports) {
+},{"../src/util":29}],24:[function(require,module,exports) {
 // oldFF-globalStorage provides storage for Firefox
 // versions 6 and 7, where no localStorage, etc
 // is available.
@@ -21695,7 +21696,7 @@ function clearAll() {
 	})
 }
 
-},{"../src/util":21}],24:[function(require,module,exports) {
+},{"../src/util":29}],25:[function(require,module,exports) {
 // oldIE-userDataStorage provides storage for Internet Explorer
 // versions 6 and 7, where no localStorage, sessionStorage, etc
 // is available.
@@ -21824,7 +21825,7 @@ function _makeIEStorageElFunction() {
 	}
 }
 
-},{"../src/util":21}],25:[function(require,module,exports) {
+},{"../src/util":29}],26:[function(require,module,exports) {
 // cookieStorage is useful Safari private browser mode, where localStorage
 // doesn't work but cookies do. This implementation is adopted from
 // https://developer.mozilla.org/en-US/docs/Web/API/Storage/LocalStorage
@@ -21887,7 +21888,7 @@ function _has(key) {
 	return (new RegExp("(?:^|;\\s*)" + escape(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=")).test(doc.cookie)
 }
 
-},{"../src/util":21}],26:[function(require,module,exports) {
+},{"../src/util":29}],27:[function(require,module,exports) {
 var util = require('../src/util')
 var Global = util.Global
 
@@ -21927,7 +21928,7 @@ function clearAll() {
 	return sessionStorage().clear()
 }
 
-},{"../src/util":21}],27:[function(require,module,exports) {
+},{"../src/util":29}],28:[function(require,module,exports) {
 // memoryStorage is a useful last fallback to ensure that the store
 // is functions (meaning store.get(), store.set(), etc will all function).
 // However, stored values will not persist when the browser navigates to
@@ -21968,7 +21969,7 @@ function clearAll(key) {
 	memoryStorage = {}
 }
 
-},{}],13:[function(require,module,exports) {
+},{}],14:[function(require,module,exports) {
 module.exports = [
 	// Listed in order of usage preference
 	require('./localStorage'),
@@ -21979,7 +21980,7 @@ module.exports = [
 	require('./memoryStorage')
 ]
 
-},{"./localStorage":22,"./oldFF-globalStorage":23,"./oldIE-userDataStorage":24,"./cookieStorage":25,"./sessionStorage":26,"./memoryStorage":27}],35:[function(require,module,exports) {
+},{"./localStorage":23,"./oldFF-globalStorage":24,"./oldIE-userDataStorage":25,"./cookieStorage":26,"./sessionStorage":27,"./memoryStorage":28}],37:[function(require,module,exports) {
 /* eslint-disable */
 
 //  json2.js
@@ -22496,7 +22497,7 @@ function json2Plugin() {
 	return {}
 }
 
-},{"./lib/json2":35}],8:[function(require,module,exports) {
+},{"./lib/json2":37}],7:[function(require,module,exports) {
 var engine = require('../src/store-engine')
 
 var storages = require('../storages/all')
@@ -22504,7 +22505,7 @@ var plugins = [require('../plugins/json2')]
 
 module.exports = engine.createStore(storages, plugins)
 
-},{"../src/store-engine":14,"../storages/all":13,"../plugins/json2":15}],6:[function(require,module,exports) {
+},{"../src/store-engine":13,"../storages/all":14,"../plugins/json2":15}],19:[function(require,module,exports) {
 var bundleURL = null;
 function getBundleURLCached() {
   if (!bundleURL) {
@@ -22534,7 +22535,7 @@ function getBaseURL(url) {
 
 exports.getBundleURL = getBundleURLCached;
 exports.getBaseURL = getBaseURL;
-},{}],5:[function(require,module,exports) {
+},{}],6:[function(require,module,exports) {
 var bundle = require('./bundle-url');
 
 function updateLink(link) {
@@ -22565,13 +22566,13 @@ function reloadCSS() {
 }
 
 module.exports = reloadCSS;
-},{"./bundle-url":6}],50:[function(require,module,exports) {
+},{"./bundle-url":19}],4:[function(require,module,exports) {
 
         var reloadCSS = require('_css_loader');
         module.hot.dispose(reloadCSS);
         module.hot.accept(reloadCSS);
       
-},{"_css_loader":5}],3:[function(require,module,exports) {
+},{"_css_loader":6}],2:[function(require,module,exports) {
 'use strict';
 
 var _game = require('./game');
@@ -22633,7 +22634,7 @@ var app = window.app = new _vueEsm2.default({
         initGame: function initGame() {
             _game2.default.start({
                 mode: parseInt(this.difficulty),
-                cellCount: 9
+                cellCount: 6
             });
             window.game = _game2.default;
         }
@@ -22648,11 +22649,10 @@ var app = window.app = new _vueEsm2.default({
     }
 
 });
-},{"./game":7,"jquery":9,"vue/dist/vue.esm.js":37,"store":8,"./index.scss":50}],62:[function(require,module,exports) {
-
+},{"./game":5,"jquery":10,"vue/dist/vue.esm.js":39,"store":7,"./index.scss":4}],42:[function(require,module,exports) {
+var global = (1,eval)("this");
 var OVERLAY_ID = '__parcel__error__overlay__';
 
-var global = (1, eval)('this');
 var OldModule = module.bundle.Module;
 
 function Module(moduleName) {
@@ -22678,7 +22678,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + '64837' + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + '64422' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 
@@ -22692,6 +22692,8 @@ if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
           hmrAccept(global.parcelRequire, asset.id);
         }
       });
+      // Clear the console after HMR
+      console.clear();
     }
 
     if (data.type === 'reload') {
@@ -22817,5 +22819,5 @@ function hmrAccept(bundle, id) {
     return hmrAccept(global.parcelRequire, id);
   });
 }
-},{}]},{},[62,3])
+},{}]},{},[42,2])
 //# sourceMappingURL=/colorline.c094c866.map
