@@ -1,36 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>HTML5五彩连珠小游戏</title>
-        <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <!-- <link rel="stylesheet" href="./index.css"> -->
-    </head>
-    <body>
-        <canvas id="canvas" height="1200" width="1800" style="background: #333;"></canvas>
-        <div id="app">
-            <!-- 当前得分 -->
-            <div class="CurrentScore">
-                <label>当前得分：</label>
-                <p>{{score}}</p>
-            </div>
-
-            <!-- 难度 -->
-            <div class="form-group Difficulty">
-                <label for="exampleFormControlSelect2">游戏难度：</label>
-                <select class="form-control" v-model="difficulty">
-                    <option value="3">简单</option>
-                    <option value="6">一般</option>
-                    <option value="9">困难</option>
-                </select>
-            </div>
-
-            <!-- 历史纪录 -->
-            <ul class="Scroe">
-                <li class="Score__head">历史战绩：</li>
-                <li v-for="item in list">{{item.date}}，{{item.score}}分</li>
-            </ul>
-        </div>
-    </body>
-    <script src="./index.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <a href="./game.html">start game</a>
+</body>
 </html>
