@@ -285,7 +285,7 @@ process.chdir = function (dir) {
 process.umask = function () {
     return 0;
 };
-},{}],6:[function(require,module,exports) {
+},{}],12:[function(require,module,exports) {
 var global = arguments[3];
 var process = require("process");
 var define;
@@ -10654,7 +10654,7 @@ if ( !noGlobal ) {
 return jQuery;
 } );
 
-},{"process":18}],5:[function(require,module,exports) {
+},{"process":18}],10:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11374,7 +11374,7 @@ function log() {
 }
 
 exports.default = game;
-},{"jquery":6}],7:[function(require,module,exports) {
+},{"jquery":12}],11:[function(require,module,exports) {
 var global = arguments[3];
 'use strict';
 
@@ -21274,7 +21274,7 @@ function getOuterHTML(el) {
 Vue.compile = compileToFunctions;
 
 exports.default = Vue;
-},{}],24:[function(require,module,exports) {
+},{}],20:[function(require,module,exports) {
 var global = arguments[3];
 var assign = make_assign()
 var create = make_create()
@@ -21634,7 +21634,7 @@ function createStore(storages, plugins, namespace) {
 	return store
 }
 
-},{"./util":24}],25:[function(require,module,exports) {
+},{"./util":20}],21:[function(require,module,exports) {
 var util = require('../src/util')
 var Global = util.Global
 
@@ -21674,7 +21674,7 @@ function clearAll() {
 	return localStorage().clear()
 }
 
-},{"../src/util":24}],26:[function(require,module,exports) {
+},{"../src/util":20}],24:[function(require,module,exports) {
 // oldFF-globalStorage provides storage for Firefox
 // versions 6 and 7, where no localStorage, etc
 // is available.
@@ -21718,7 +21718,7 @@ function clearAll() {
 	})
 }
 
-},{"../src/util":24}],27:[function(require,module,exports) {
+},{"../src/util":20}],22:[function(require,module,exports) {
 // oldIE-userDataStorage provides storage for Internet Explorer
 // versions 6 and 7, where no localStorage, sessionStorage, etc
 // is available.
@@ -21847,7 +21847,7 @@ function _makeIEStorageElFunction() {
 	}
 }
 
-},{"../src/util":24}],28:[function(require,module,exports) {
+},{"../src/util":20}],23:[function(require,module,exports) {
 // cookieStorage is useful Safari private browser mode, where localStorage
 // doesn't work but cookies do. This implementation is adopted from
 // https://developer.mozilla.org/en-US/docs/Web/API/Storage/LocalStorage
@@ -21910,7 +21910,7 @@ function _has(key) {
 	return (new RegExp("(?:^|;\\s*)" + escape(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=")).test(doc.cookie)
 }
 
-},{"../src/util":24}],29:[function(require,module,exports) {
+},{"../src/util":20}],25:[function(require,module,exports) {
 var util = require('../src/util')
 var Global = util.Global
 
@@ -21950,7 +21950,7 @@ function clearAll() {
 	return sessionStorage().clear()
 }
 
-},{"../src/util":24}],30:[function(require,module,exports) {
+},{"../src/util":20}],26:[function(require,module,exports) {
 // memoryStorage is a useful last fallback to ensure that the store
 // is functions (meaning store.get(), store.set(), etc will all function).
 // However, stored values will not persist when the browser navigates to
@@ -22002,7 +22002,7 @@ module.exports = [
 	require('./memoryStorage')
 ]
 
-},{"./localStorage":25,"./oldFF-globalStorage":26,"./oldIE-userDataStorage":27,"./cookieStorage":28,"./sessionStorage":29,"./memoryStorage":30}],31:[function(require,module,exports) {
+},{"./localStorage":21,"./oldFF-globalStorage":24,"./oldIE-userDataStorage":22,"./cookieStorage":23,"./sessionStorage":25,"./memoryStorage":26}],27:[function(require,module,exports) {
 /* eslint-disable */
 
 //  json2.js
@@ -22519,7 +22519,7 @@ function json2Plugin() {
 	return {}
 }
 
-},{"./lib/json2":31}],8:[function(require,module,exports) {
+},{"./lib/json2":27}],13:[function(require,module,exports) {
 var engine = require('../src/store-engine')
 
 var storages = require('../storages/all')
@@ -22527,7 +22527,7 @@ var plugins = [require('../plugins/json2')]
 
 module.exports = engine.createStore(storages, plugins)
 
-},{"../src/store-engine":15,"../storages/all":16,"../plugins/json2":17}],22:[function(require,module,exports) {
+},{"../src/store-engine":15,"../storages/all":16,"../plugins/json2":17}],19:[function(require,module,exports) {
 var bundleURL = null;
 function getBundleURLCached() {
   if (!bundleURL) {
@@ -22557,7 +22557,7 @@ function getBaseURL(url) {
 
 exports.getBundleURL = getBundleURLCached;
 exports.getBaseURL = getBaseURL;
-},{}],13:[function(require,module,exports) {
+},{}],14:[function(require,module,exports) {
 var bundle = require('./bundle-url');
 
 function updateLink(link) {
@@ -22588,13 +22588,13 @@ function reloadCSS() {
 }
 
 module.exports = reloadCSS;
-},{"./bundle-url":22}],4:[function(require,module,exports) {
+},{"./bundle-url":19}],9:[function(require,module,exports) {
 
         var reloadCSS = require('_css_loader');
         module.hot.dispose(reloadCSS);
         module.hot.accept(reloadCSS);
       
-},{"_css_loader":13}],3:[function(require,module,exports) {
+},{"_css_loader":14}],8:[function(require,module,exports) {
 'use strict';
 
 var _game = require('./game');
@@ -22671,7 +22671,7 @@ var app = window.app = new _vueEsm2.default({
     }
 
 });
-},{"./game":5,"jquery":6,"vue/dist/vue.esm.js":7,"store":8,"./index.scss":4}],32:[function(require,module,exports) {
+},{"./game":10,"jquery":12,"vue/dist/vue.esm.js":11,"store":13,"./index.scss":9}],28:[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 
@@ -22700,7 +22700,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + '55106' + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + '63430' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 
@@ -22841,5 +22841,5 @@ function hmrAccept(bundle, id) {
     return hmrAccept(global.parcelRequire, id);
   });
 }
-},{}]},{},[32,3], null)
+},{}]},{},[28,8], null)
 //# sourceMappingURL=/colorline.c094c866.map
