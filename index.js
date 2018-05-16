@@ -2,7 +2,7 @@ import game from './game'
 import $ from 'jquery'
 import Vue from 'vue/dist/vue.esm.js'
 import store from 'store'
-import './index.scss'
+import './game.scss'
 
 const app = window.app = new Vue({
     el: '#app',

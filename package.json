@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "parcel index.html"
+    "dev": "rm -R ./dist && parcel index.html"
   },
   "dependencies": {
     "store": "^2.0.12",
