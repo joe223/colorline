@@ -26,8 +26,17 @@
 
             <!-- 历史纪录 -->
             <ul class="Scroe">
-                <li class="Score__head">历史战绩：</li>
-                <li v-for="item in list">{{item.date}}，{{item.score}}分</li>
+                <li class="Score__head">
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect2">历史战绩：</label>
+                        <select class="form-control" v-model="historyMode">
+                            <option value="3">简单</option>
+                            <option value="6">一般</option>
+                            <option value="9">困难</option>
+                        </select>
+                    </div>
+                </li>
+                <li v-for="item in _history">{{item.date}}，{{item.score}}分</li>
             </ul>
         </div>
     </body>

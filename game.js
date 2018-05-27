@@ -47,7 +47,10 @@ var game = {
     over: function () {
         this.isEnd = true
         if (window.app) {
-            window.app.$emit('gameEnd', this.score.score)
+            window.app.$emit('gameEnd', {
+                score: this.score.score,
+                mode: this.mode
+            })
         }
     },
     draw: function () {
@@ -293,7 +296,6 @@ game.ready = {
                 let limit = 0.05 * game.cellWidth
                 limit = limit < 1 ? 1 : limit
 
-                if (i === 0) log(i, '::::', current, x2, y2, limit)
                 // 如果最后距离终点只有 0.1px ，则算作已经移动到终点
                 if (Math.abs(current.px - x2) < limit && Math.abs(current.py - y2) < limit) {
                     status[i] = 1;

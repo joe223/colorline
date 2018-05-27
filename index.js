@@ -9,12 +9,13 @@ const app = window.app = new Vue({
     data: {
         difficulty: 3, // 默认简单
         list: [],
-        score: 0
+        score: 0,
+        historyMode: 3
     },
     mounted () {
         const canvas = $('#canvas')
         const body = $('body')
-        this.list = store.get('history') || []
+        this.list = store.get('history') || {}
         canvas.get(0).width = body.width()
         canvas.get(0).height = body.height()
         this.initGame()
@@ -30,9 +31,12 @@ const app = window.app = new Vue({
         },
 
         saveData (data) {
-            this.list.unshift({
+            if (!this.list[data.mode]) {
+                this.$set(this.list, data.mode, [])
+            }
+            this.list[data.mode].unshift({
                 date: new Date().toLocaleString(),
-                score: data
+                score: data.score
             })
             store.set('history', this.list)
             let conti = confirm("游戏结束，是否继续？");
@@ -58,6 +62,12 @@ const app = window.app = new Vue({
                 this.initGame()
             }
         }
-    }
+    },
 
+    computed: {
+        _history () {
+            return (this.list[this.historyMode] || []).sort((prev, next) => next.score - prev.score)
+        }
+
+    }
 })
