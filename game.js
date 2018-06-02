@@ -474,6 +474,7 @@ game.map = {
         if (!path) {
             //显示不能移动s
             //alert("过不去");
+            game.clicked = null;
             return;
         }
 
@@ -703,19 +704,22 @@ Bubble.prototype.play = function () {
 Bubble.prototype.stop = function () {
     //this.light = 10;
     var me = this;
+    var light = me.width / 1.4;
+    var step = light / 6
     game.stop("light_" + this.x + "_" + this.y);
 
     // 停止闪烁后如果棋子还是高亮状态
     // 则取消高亮
     game.play("restore_" + this.x + "_" + this.y, function () {
-        if (me.light > 10) {
-            me.light--;
+        if (me.light > light) {
+            me.light -= step;
         }
         else {
-            me.light = 10;
             game.stop("restore_" + me.x + "_" + me.y);
+            me.light = light;
         }
-    }, 50);
+    }, 16);
+
 };
 
 function log(...arg) {
